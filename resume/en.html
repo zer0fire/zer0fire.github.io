@@ -3,146 +3,320 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PIRATE KING</title>
+    <title>Alex Wang Resume</title>
     <style>
-      html {
-        background-color: rgb(56, 56, 59);
-        color: white;
-      }
+      body,
       h1,
       h2,
       h3 {
         margin: 0;
       }
-      a {
-        color: rgb(141, 217, 191);
+      code {
+        background-color: #ddd;
+        border-radius: 4px;
+        padding: 5px 2px 2px 2px;
       }
-      main h1.title {
-        color: rgb(82, 156, 202);
-        /* border-bottom: 1px solid white; */
-        margin: 10px 5px;
-        font-size: 20px;
-      }
-      main .item {
-        display: list-item;
-        margin-left: 25px;
-      }
-      main .item::marker {
-        color: rgb(82, 156, 202);
-      }
-      header {
-        display: flex;
-        justify-content: center;
+      body {
+        /* background-color: rgb(56, 56, 59); */
+        /* color: white; */
         padding: 0px 15px;
       }
-      header .split {
-        color: black;
-      }
-      header .item {
-        margin-left: 10px;
-        margin-right: 10px;
-      }
-      .resume-name {
+      header h1 {
         text-align: center;
+        font-size: 20px;
+        margin-bottom: 3px;
       }
-      .exp,
-      .edu {
+      header h2 {
+        text-align: center;
+        font-size: 16px;
+      }
+      header {
+        /* margin: 0px 0px 15px 0px; */
+      }
+      aside,
+      section,
+      main {
+        margin-bottom: 5px;
+      }
+      aside h1,
+      section h1,
+      main h1,
+      footer h1 {
+        margin-bottom: 5px;
+      }
+      aside h1 {
+        border-left: 10px solid grey;
+        color: rgb(82, 156, 202);
+        border-bottom: 1px solid;
+        padding: 2px 0px 2px 10px;
+        font-size: 20px;
+      }
+      aside div.item {
+        display: list-item;
+        margin-left: 30px;
+        font-size: 15px;
+      }
+      section h1 {
+        border-left: 10px solid grey;
+        color: rgb(82, 156, 202);
+        border-bottom: 1px solid;
+        padding: 2px 0px 2px 10px;
+        font-size: 20px;
+      }
+      section h2,
+      section h3 {
+        font-size: 14px;
+      }
+      section .container {
+        display: flex;
+        justify-content: space-between;
+      }
+      section div {
+        margin-bottom: 5px;
+        font-size: 15px;
+      }
+      main h1 {
+        border-left: 10px solid grey;
+        color: rgb(82, 156, 202);
+        border-bottom: 1px solid;
+        padding: 2px 0px 2px 10px;
+        font-size: 20px;
+      }
+      main .project h2 {
+        font-size: 20px;
+        margin: 5px 0px 5px 0px;
+      }
+      main .project h3 {
+        font-size: 18px;
+        margin: 5px;
+      }
+      main .project .description {
+        display: list-item;
+        margin-left: 30px;
+        font-size: 15px;
+      }
+      footer h1 {
+        border-left: 10px solid grey;
+        color: rgb(82, 156, 202);
+        border-bottom: 1px solid;
+        padding: 2px 0px 2px 10px;
+        font-size: 20px;
+      }
+      footer .container {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        padding: 0px 10px;
-      }
-      .exp h1,
-      .edu h1 {
-        font-size: 16px;
-        width: 30%;
-      }
-      .exp .tag,
-      .edu .tag {
-        width: 30%;
-        /* border-bottom: 1px solid; */
-        font-weight: bolder;
-        text-align: center;
-      }
-      .exp .period,
-      .edu .period {
-        width: 40%;
-        text-align: right;
-        display: flex;
-        justify-content: right;
-      }
-      .exp .item,
-      .edu .item {
-        width: 100%;
-      }
-      .period .location,
-      .period .time {
-        width: 50%;
+        padding: 0px 15px;
+        font-size: 15px;
       }
     </style>
   </head>
   <body>
-    <h1 class="resume-name">Wang Meng</h1>
     <header>
-      <div class="item"><a href="">LinkedIn</a></div>
-      <div class="split">|</div>
-      <div class="item">184-4707-3846</div>
-      <div class="split">|</div>
-      <div class="item"><a href="">site</a></div>
-      <div class="split">|</div>
-      <div class="item">email: hai@zer0fire.me</div>
-      <div class="split">|</div>
-      <div class="item"><a href="">GitHub</a></div>
+      <h1>Alex Wang</h1>
+      <h2>18447073846 | hai@zer0fire.me | Chengdu, China</h2>
     </header>
-    <main class="skills">
-      <h1 class="title">Skills</h1>
-      <div class="item">C#</div>
-      <div class="item">Azure</div>
-      <div class="item">Microservices</div>
-    </main>
-    <main class="experience">
-      <h1 class="title">Experience</h1>
-      <div class="exp">
-        <h1>Frontend Engineer</h1>
-        <div class="tag">Spark Education Group</div>
-        <div class="period">
-          <div class="time">07/2021 - Current</div>
+    <aside class="ability">
+      <h1>Skills</h1>
+      <div class="container">
+        <div class="item">
+          Familiar with native JavaScript, understand prototype, closure,
+          higher-order, asynchronous etc., familiar with ES new features,
+          familiar with using TypeScript to write programs.
         </div>
-        <div class="item"><b>PRIATE KING</b></div>
-      </div>
-      <div class="exp">
-        <h1>Software Engineer</h1>
-        <div class="tag">Microsoft</div>
-        <div class="period">
-          <div class="location">Redmond, WA, USA</div>
-          <div class="time">07/2021 - Current</div>
+        <div class="item">
+          Familiar with the use of React, Redux and React-Router.
         </div>
-        <div class="item"><b>PRIATE KING</b></div>
-      </div>
-    </main>
-    <main class="education">
-      <h1 class="title">Education</h1>
-      <div class="edu">
-        <h1>Bachelor of IOT Engineering</h1>
-        <div class="tag">IMUT</div>
-        <div class="period">
-          <div class="location">Inner Mongolia, PRC</div>
-          <div class="time">09/2014 - 07/2018</div>
+        <div class="item">
+          Familiar with using Git, familiar with using ESLint and Prettier code
+          specifications.
+        </div>
+        <div class="item">
+          Familiar with Sass, Less, familiar with Babel to compile code.
+        </div>
+        <div class="item">
+          Familiar with the mechanism of HTTP protocol, common request headers,
+          etc., familiar with common browser resource caching strategies.
+        </div>
+        <div class="item">
+          Familiar with the responsive layout, flexible layout, percentage
+          adaptive layout.
         </div>
       </div>
-    </main>
-    <main class="project">
-      <h1 class="title">Project</h1>
-      <div class="item">COLORMAN</div>
-      <div class="item">SPIKE</div>
-    </main>
-    <main class="others">
-      <h1 class="title">Others</h1>
-      <div class="item">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam natus
-        optio at placeat animi culpa, accusantium fugiat distinctio cum, nulla
-        ea unde aperiam pariatur mollitia neque expedita, ipsa dolor sint?
+    </aside>
+    <section class="experience">
+      <h1>Experience</h1>
+      <div class="container">
+        <h2>Spark Education Group,</h2>
+        <h3>2020.11 - Current</h3>
+      </div>
+      <div>Front-end Developer</div>
+      <div class="container">
+        <h2>Beijing Hank-Times Group</h2>
+        <h3>2019.05 - 2020.10</h3>
+      </div>
+      <div>Front-end Developer</div>
+      <div class="container">
+        <h2>Inner Mongolia YunKe Data Group</h2>
+        <h3>2018.05 - 2019.04</h3>
+      </div>
+      <div>Front-end Developer</div>
+    </section>
+    <main>
+      <h1>Projects</h1>
+      <div class="project">
+        <h2>Game Dreamworks Platform</h2>
+        <h3>Project Description:</h3>
+        <div class="description">
+          This project is a low-code development platform for developing.
+          courseware games, which allows teachers to customize existing.
+          courseware game templates.
+        </div>
+        <h3>Technology Stack:</h3>
+        <div class="description">
+          Developed by React + Ant Design + redux-toolkit, and uses Cocos for
+          visual layer to handle basic drag and drop.
+        </div>
+        <h3>Responsible content:</h3>
+        <div class="description">
+          Participated in the low-code project page development.
+        </div>
+        <div class="description">
+          Developed and extended the basic drag and drop component library.
+        </div>
+        <div class="description">
+          Responsible for developing the low-code modules and templates for the
+          teachers.
+        </div>
+        <div class="description">
+          Integrated sentry to monitor the front-end page quality.
+        </div>
+        <h3>Project difficulties:</h3>
+        <div class="description">
+          How to abstract the drag and drop library.
+        </div>
+        <div class="description">
+          How to embed the Cocos engine into the web page and connected it to a
+          custom material library.
+        </div>
+        <div class="description">How to integrate data tracking.</div>
+        <div class="description">
+          How to integrate sentry platform to report and fix bugs.
+        </div>
+        <h3>Project results:</h3>
+        <div class="description">
+          Allowing users to use Cocos-related engine capabilities on the web
+          page.
+        </div>
+        <div class="description">
+          Abstracted a set of drag and drop libraries, used as infrastructure.
+        </div>
+        <div class="description">Reduced the time to locate bugs.</div>
+      </div>
+      <div class="project">
+        <h2>Game Factory Platform</h2>
+        <h3>Project Description:</h3>
+        <div class="description">
+          A supporting tool platform for producing, mainly for the convenience
+          of developing Cocos game engine plugins.
+        </div>
+        <h3>Technology Stack:</h3>
+        <div class="description">
+          Developed by React + Ant Design + redux-toolkit, use Cocos Plugin and
+          Electron API.
+        </div>
+        <h3>Responsible content:</h3>
+        <div class="description">
+          Develop Cocos plugin tools and platform pages.
+        </div>
+        <div class="description">Develop the extension of Cocos editor.</div>
+        <div class="description">Develop the plugin's scaffolding.</div>
+        <h3>Project difficulties:</h3>
+        <div class="description">
+          Cocos internal Plugin cannot import front-end projects, cannot use npm
+          and other libraries or frameworks.
+        </div>
+        <div class="description">
+          Cocos Editor Plugin cannot be directly debugged.
+        </div>
+        <div class="description">
+          How to use Electron and Cocos API to collect local resource.
+        </div>
+        <div class="description">How to improve the scaffolding function</div>
+        <h3>Project results:</h3>
+        <div class="description">
+          Use iframe to introduce the platform front-end project in the Cocos
+          plugin.
+        </div>
+        <div class="description">
+          Use the connected graph algorithm to collect dependencies, and handle
+          some empty dependencies
+        </div>
+        <div class="description">
+          Develop the scaffolding functions of quickly creating projects,
+          quickly accessing Cocos plugin, and starting and running plugins
+          locally.
+        </div>
+        <div class="description">
+          Put the platform debugging to the local start.
+        </div>
+      </div>
+      <div class="project">
+        <h2>Alita Management Platform</h2>
+        <h3>Project Description:</h3>
+        <div class="description">
+          Mainly used to create a background for product marketing activities,
+          provided to the e-commerce department's operations.
+        </div>
+        <h3>Technology Stack:</h3>
+        <div class="description">
+          Developed by React + Ant Design + Redux。Use Axios as request library.
+        </div>
+        <h3>Responsible content:</h3>
+        <div class="description">
+          Use JSON Schema to customize rendering table
+        </div>
+        <div class="description">
+          Optimize the performance of the custom rendered page
+        </div>
+        <div class="description">
+          Manage the files uploaded by users and send them to the backend for
+          storage
+        </div>
+        <div class="description">Use JWT for cross-domain authentication</div>
+        <h3>Project difficulties:</h3>
+        <div class="description">
+          How to use JSON Schema's custom rendering.
+        </div>
+        <div class="description">The form content is rendered too much</div>
+        <div class="description">
+          The files uploaded by the user are too large and easy to interrupt
+        </div>
+        <h3>Project results:</h3>
+        <div class="description">
+          Use JSON Schema to complete the ability to directly render the backend
+          data
+        </div>
+        <div class="description">
+          Use virtual scrolling to optimize page performance.
+        </div>
+        <div class="description">
+          Implement large file upload, and allow large files to resume from
+          breakpoints
+        </div>
+        <div class="description">
+          Improve page loading efficiency by using image lazy loading
+        </div>
       </div>
     </main>
+    <footer>
+      <h1>Education</h1>
+      <div class="container">
+        <div class="description">
+          InnerMongolia University of Technology, Major Internet of Things
+        </div>
+        <div class="description">2014.09 - 2018.07</div>
+      </div>
+    </footer>
   </body>
 </html>
