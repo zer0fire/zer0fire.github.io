@@ -1,0 +1,1 @@
+const circle=document.createElement("div"),header=(document.body.appendChild(circle),document.querySelector("header"));circle.classList=["circle"],document.body.insertBefore(circle,header),window.addEventListener("mousemove",e=>{circle.style.top=e.clientY-20+"px",circle.style.left=e.clientX-20+"px"});
