@@ -8,6 +8,7 @@
       body {
         --circle-size: 30px;
         /* background-color: #000; */
+        background-color: rgb(22, 29, 54);
       }
       .circle {
         width: var(--circle-size);
@@ -26,30 +27,34 @@
       /* .circle .visible {
         opacity: 1;
       } */
+      .intro {
+        color: white;
+      }
     </style>
   </head>
   <body>
     <div class="circle"></div>
 
+    <!-- <img src="https://temp.im/123x456" />
     <img src="https://temp.im/123x456" />
-    <img src="https://temp.im/123x456" />
-    <img src="https://temp.im/123x456" />
+    <img src="https://temp.im/123x456" /> -->
   </body>
   <script>
     const circle = document.querySelector(".circle");
     const body = document.querySelector("body");
     const rect = circle.getBoundingClientRect();
-    // circle.getClientRects();
     window.addEventListener("mousemove", (e) => {
       circle.style.top = `${e.clientY - rect.height / 2}px`;
       circle.style.left = `${e.clientX - rect.width / 2}px`;
-      //   console.log(`translate(${e.clientX}, ${e.clientY})`);
     });
-    // window.addEventListener("mouseleave", (e) => {
-    //   circle.style.opacity = 0;
-    // });
-    // window.addEventListener("mouseenter", (e) => {
-    //   circle.style.opacity = 255;
-    // });
+
+    const intro = document.createElement("div");
+    intro.classList = ["intro"];
+    body.appendChild(intro);
+
+    intro.innerHTML = `
+<h1>Alex Wang</h1>
+<h2>A Software Developer who always wants to be better in tech and life.</h2>
+`;
   </script>
 </html>
