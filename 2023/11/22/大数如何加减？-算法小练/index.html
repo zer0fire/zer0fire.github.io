@@ -1,1 +1,664 @@
-<!DOCTYPE html><html lang="en" data-default-color-scheme="auto"><head><meta charset="UTF-8"><link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png"><link rel="icon" href="/img/fluid.png"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,shrink-to-fit=no"><meta http-equiv="x-ua-compatible" content="ie=edge"><meta name="theme-color" content="#2f4154"><meta name="author" content="AlexWang"><meta name="keywords" content=""><meta name="description" content="前言在平时 coding 的时候，如果用到一些数学计算，那么加法和减法必然是我们代码中的常客，但是当一些数字超过 JS 可精确表示的范围时，我们又该如何计算呢？今天给大家带来的就是一个粗浅的算法思路及其实现。如果对我的内容有问题或者疑问，欢迎评论区多多交流。 理清思路前置条件 首先要理解，因为 JS 无法准确表示超出 IEEE 754 标准规范的整数。当数字超过 -2^53到2^53 的范围时，无"><meta property="og:type" content="article"><meta property="og:title" content="大数如何加减？- 算法小练"><meta property="og:url" content="https://blog.zer0fire.me/2023/11/22/%E5%A4%A7%E6%95%B0%E5%A6%82%E4%BD%95%E5%8A%A0%E5%87%8F%EF%BC%9F-%E7%AE%97%E6%B3%95%E5%B0%8F%E7%BB%83/index.html"><meta property="og:site_name" content="zer0fire"><meta property="og:description" content="前言在平时 coding 的时候，如果用到一些数学计算，那么加法和减法必然是我们代码中的常客，但是当一些数字超过 JS 可精确表示的范围时，我们又该如何计算呢？今天给大家带来的就是一个粗浅的算法思路及其实现。如果对我的内容有问题或者疑问，欢迎评论区多多交流。 理清思路前置条件 首先要理解，因为 JS 无法准确表示超出 IEEE 754 标准规范的整数。当数字超过 -2^53到2^53 的范围时，无"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/61aa5f1e2a3f4ab0af758277a88cbaad~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=780&h=1150&s=74307&e=png&b=fcfcfc"><meta property="og:image" content="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8cb9ab6b27db4a5db4e63c7c86bbeb7d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=756&h=611&s=50477&e=png&b=fcfcfc"><meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3505088142fd411892dfce7603032218~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=664&h=591&s=46459&e=png&b=fcfcfc"><meta property="article:published_time" content="2023-11-22T03:03:41.000Z"><meta property="article:modified_time" content="2023-11-22T03:24:38.060Z"><meta property="article:author" content="AlexWang"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/61aa5f1e2a3f4ab0af758277a88cbaad~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=780&h=1150&s=74307&e=png&b=fcfcfc"><title>大数如何加减？- 算法小练 - zer0fire</title><link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css"><link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css"><link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css"><link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css"><link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css"><link rel="stylesheet" href="/css/main.css"><link id="highlight-css" rel="stylesheet" href="/css/highlight.css"><link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css"><link rel="stylesheet" href="/css/circle.css"><link rel="stylesheet" href="/css/intro.css"><script id="fluid-configs">var Fluid=window.Fluid||{};Fluid.ctx=Object.assign({},Fluid.ctx);var CONFIG={hostname:"blog.zer0fire.me",root:"/",version:"1.9.5-a",typing:{enable:!1,typeSpeed:70,cursorChar:"_",loop:!1,scope:[]},anchorjs:{enable:!0,element:"h1,h2,h3,h4,h5,h6",placement:"left",visible:"hover",icon:""},progressbar:{enable:!0,height_px:3,color:"#29d",options:{showSpinner:!1,trickleSpeed:100}},code_language:{enable:!0,default:"TEXT"},copy_btn:!0,image_caption:{enable:!0},image_zoom:{enable:!0,img_url_replace:["",""]},toc:{enable:!0,placement:"right",headingSelector:"h1,h2,h3,h4,h5,h6",collapseDepth:0},lazyload:{enable:!0,loading_img:"/img/loading.gif",onlypost:!1,offset_factor:2},web_analytics:{enable:!1,follow_dnt:!0,baidu:null,google:{measurement_id:null},tencent:{sid:null,cid:null},woyaola:null,cnzz:null,leancloud:{app_id:null,app_key:null,server_url:null,path:"window.location.pathname",ignore_local:!1}},search_path:"/local-search.xml",include_content_in_search:!0};if(CONFIG.web_analytics.follow_dnt){var dntVal=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack;Fluid.ctx.dnt=dntVal&&(dntVal.startsWith("1")||dntVal.startsWith("yes")||dntVal.startsWith("on"))}</script><script src="/js/utils.js"></script><script src="/js/color-schema.js"></script><meta name="generator" content="Hexo 6.3.0"></head><body><header><div class="header-inner" style="height:70vh"><nav id="navbar" class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar"><div class="container"><a class="navbar-brand" href="/"><strong>zer0fire</strong> </a><button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><div class="animated-icon"><span></span><span></span><span></span></div></button><div class="collapse navbar-collapse" id="navbarSupportedContent"><ul class="navbar-nav ml-auto text-center"><li class="nav-item"><a class="nav-link" href="/"><i class="iconfont icon-home-fill"></i> <span>Home</span></a></li><li class="nav-item"><a class="nav-link" href="/archives/"><i class="iconfont icon-archive-fill"></i> <span>Archives</span></a></li><li class="nav-item"><a class="nav-link" href="/categories/"><i class="iconfont icon-category-fill"></i> <span>Categories</span></a></li><li class="nav-item"><a class="nav-link" href="/tags/"><i class="iconfont icon-tags-fill"></i> <span>Tags</span></a></li><li class="nav-item"><a class="nav-link" href="/about/"><i class="iconfont icon-user-fill"></i> <span>About</span></a></li><li class="nav-item" id="search-btn"><a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search"><i class="iconfont icon-search"></i></a></li><li class="nav-item" id="color-toggle-btn"><a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle"><i class="iconfont icon-dark" id="color-toggle-icon"></i></a></li></ul></div></div></nav><div id="banner" class="banner" parallax="true" style="background:url(/img/default.png) no-repeat center center;background-size:cover"><div class="full-bg-img"><div class="mask flex-center" style="background-color:rgba(0,0,0,.3)"><div class="banner-text text-center fade-in-up"><div class="h2"><span id="subtitle">大数如何加减？- 算法小练</span></div><div class="mt-3"><span class="post-meta"><i class="iconfont icon-date-fill" aria-hidden="true"></i> <time datetime="2023-11-22 11:03" pubdate>November 22, 2023 am</time></span></div><div class="mt-1"><span class="post-meta mr-2"><i class="iconfont icon-chart"></i> 7k words </span><span class="post-meta mr-2"><i class="iconfont icon-clock-fill"></i> 59 mins</span></div></div></div></div></div></div></header><main><div class="container-fluid nopadding-x"><div class="row nomargin-x"><div class="side-col d-none d-lg-block col-lg-2"></div><div class="col-lg-8 nopadding-x-md"><div class="container nopadding-x-md" id="board-ctn"><div id="board"><article class="post-content mx-auto"><h1 id="seo-header">大数如何加减？- 算法小练</h1><div class="markdown-body"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在平时 coding 的时候，如果用到一些数学计算，那么加法和减法必然是我们代码中的常客，但是当一些数字超过 <code>JS</code> 可精确表示的范围时，我们又该如何计算呢？今天给大家带来的就是一个粗浅的算法思路及其实现。如果对我的内容有问题或者疑问，欢迎评论区多多交流。</p><h1 id="理清思路"><a href="#理清思路" class="headerlink" title="理清思路"></a>理清思路</h1><h2 id="前置条件"><a href="#前置条件" class="headerlink" title="前置条件"></a>前置条件</h2><ol><li>首先要理解，因为 JS 无法准确表示超出 <code>IEEE 754</code> 标准规范的整数。当数字超过 <code>-2^53</code>到<code>2^53</code> 的范围时，无法精确计算 ，因此大数加法和大数减法是利用 <code>string</code> 类型去实现的。</li><li>因为 <code>string</code> 类型无法直接比较大小，需要有个方法比较大小，我这里抽象除了一个 <code>compare</code> 方法。</li><li><code>compare</code> 方法的流程如下，最终返回三种值，<code>-1</code> 表示小于，<code>1</code> 表示大于，<code>0</code> 表示相等。<ul><li>首先比<strong>符号</strong>，负数肯定比正数小。</li><li>其次比<strong>位数</strong>，当符号相同那么从最高位数比，最高位大的负数更小，最高位大的正数更大。</li><li>每位数字从最高位比到最低位，如果中间没有比出大小说明两数<strong>相等</strong>。</li></ul></li><li>加法有进位，减法有借位，这里用 carry 表示，在计算完最后需要做相应的处理，千万不能忘记</li><li>减法根据借位情况，可能会出现前缀 <code>0</code>，这时前缀 <code>0</code> 需要去除，但要注意不要把单独的结果 <code>0</code> 去除 。</li><li>当涉及正负符号的时候，可以先把正负符号的结果通过比较的方式计算出来，然后最后加上符号即可</li></ol><h2 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h2><p>为了更加直观的理解这个流程我画了两个简单的流程图</p><p><strong>大数加</strong><br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/61aa5f1e2a3f4ab0af758277a88cbaad~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=780&h=1150&s=74307&e=png&b=fcfcfc" srcset="/img/loading.gif" lazyload alt="image.png"></p><p><strong>大数减（带正负号）</strong></p><p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8cb9ab6b27db4a5db4e63c7c86bbeb7d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=756&h=611&s=50477&e=png&b=fcfcfc" srcset="/img/loading.gif" lazyload alt="image.png"><br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3505088142fd411892dfce7603032218~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=664&h=591&s=46459&e=png&b=fcfcfc" srcset="/img/loading.gif" lazyload alt="image.png"></p><h1 id="开始实现"><a href="#开始实现" class="headerlink" title="开始实现"></a>开始实现</h1><h2 id="1-compare-方法"><a href="#1-compare-方法" class="headerlink" title="1. compare 方法"></a>1. <code>compare</code> 方法</h2><p><code>compare</code> 方法主要处理了四种比较的情况，负数和正数，正数和负数，负数和负数，正数和正数，前两种情况分别返回 <code>-1</code> 和 <code>1</code> 即可，后两种情况需要比对数位，前面的思路阐述中已经解释过，这里为了篇幅就把详细代码放在最后总结的代码中，这里不再赘述。</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">compare</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">if</span> (a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; !a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_">compareNegative</span>(a1, a2);<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; !a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_">comparePositive</span>(a1, a2);<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure><h2 id="2-大数加"><a href="#2-大数加" class="headerlink" title="2. 大数加"></a>2. 大数加</h2><p>首先获取四个变量</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">let</span> carry = <span class="hljs-number">0</span>; <span class="hljs-comment">// 进位</span><br><span class="hljs-keyword">let</span> i = a1.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>; <span class="hljs-comment">// a1 的当前位指针，从最后一位开始</span><br><span class="hljs-keyword">let</span> j = a2.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>; <span class="hljs-comment">// a2 的当前位指针，从最后一位开始</span><br><span class="hljs-keyword">let</span> arr = []; <span class="hljs-comment">// 结果数据，最后会进行处理和组合</span><br></code></pre></td></tr></table></figure><p>然后通过循环，将数字加起来</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">while</span> (a1[i] || a2[j] || carry) &#123;<br>  <span class="hljs-comment">// 注意这里 a1 和 a2 位数可能不同，因此当有任意一个值，都要继续</span><br>  <span class="hljs-keyword">let</span> x = <span class="hljs-number">0</span>; <span class="hljs-comment">// 默认 0</span><br>  <span class="hljs-keyword">if</span> (a1[i]) &#123;<br>    x = <span class="hljs-title class_">Number</span>(a1[i]);<br>  &#125;<br>  <span class="hljs-keyword">let</span> y = <span class="hljs-number">0</span>; <span class="hljs-comment">// 默认 0</span><br>  <span class="hljs-keyword">if</span> (a2[j]) &#123;<br>    y = <span class="hljs-title class_">Number</span>(a2[j]);<br>  &#125;<br>  <span class="hljs-keyword">let</span> res = (x + y + carry) % <span class="hljs-number">10</span>; <span class="hljs-comment">// x + y 同时加上进位，对 10 求余，得到当前的加法结果</span><br>  arr.<span class="hljs-title function_">unshift</span>(res); <span class="hljs-comment">// 放到数组最前一位</span><br>  carry = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>((x + y + carry) / <span class="hljs-number">10</span>); <span class="hljs-comment">// 计算是否进位</span><br>  i--; <span class="hljs-comment">// 往前移动指针，准备下一位计算</span><br>  j--;<br>&#125;<br></code></pre></td></tr></table></figure><p>最后进行进位处理，返回字符串</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">if</span> (carry) &#123;<br>  <span class="hljs-comment">// 如果最后还有进位，需要把进位加上</span><br>  arr.<span class="hljs-title function_">unshift</span>(carry);<br>&#125;<br><span class="hljs-keyword">return</span> arr.<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot;&quot;</span>);<br></code></pre></td></tr></table></figure><h2 id="3-大数减（带正负号）"><a href="#3-大数减（带正负号）" class="headerlink" title="3. 大数减（带正负号）"></a>3. 大数减（带正负号）</h2><p>带正负号首先要确定结果的符号，以下三种情况都是负数，因此 <code>s</code>需要处理</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">let</span> s = <span class="hljs-string">&quot;&quot;</span>; <span class="hljs-comment">// 符号</span><br><span class="hljs-keyword">if</span> (<br>  <span class="hljs-comment">// 小减大，负数</span><br>  (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>) ||<br>  <span class="hljs-comment">// 小减大，正数</span><br>  (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>)<br>) &#123;<br>  <span class="hljs-keyword">if</span> (<span class="hljs-title function_">compare</span>(a1, a2) &lt; <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-comment">// -123 - -12</span><br>    s = <span class="hljs-string">&quot;-&quot;</span>;<br>  &#125;<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) &#123;<br>  <span class="hljs-comment">// 负数减正数</span><br>  <span class="hljs-comment">// -123 - 789</span><br>  s = <span class="hljs-string">&quot;-&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure><p>接着开始处理数字，前两种情况，分别是正数减负数，和负数减负数，抽象为去掉符号之后直接加上，即可得到数值结果</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">let</span> res = <span class="hljs-string">&quot;&quot;</span>;<br><span class="hljs-keyword">if</span> (<br>  <span class="hljs-comment">// 正 - 负</span><br>  (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>) ||<br>  <span class="hljs-comment">// 负 - 正</span><br>  (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>)<br>) &#123;<br>  <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    a1 = a1.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  <span class="hljs-keyword">if</span> (a2[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    a2 = a2.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  res = <span class="hljs-title function_">bigAdd</span>(a1, a2);<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(<br>  ...<br>) &#123;<br>  ...<br>&#125;<br></code></pre></td></tr></table></figure><p>后两种情况，正数减正数，负数减负数，去掉符号后通过比较让大数减小数，即可得到数值结果</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">if</span> (<br>  ...<br>) &#123;<br>	...<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<br>  <span class="hljs-comment">// 正 - 正</span><br>  (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) ||<br>  <span class="hljs-comment">// 负 - 负</span><br>  (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>)<br>) &#123;<br>  <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    a1 = a1.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  <span class="hljs-keyword">if</span> (a2[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    a2 = a2.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  <span class="hljs-keyword">if</span> (<span class="hljs-title function_">compare</span>(a1, a2) &gt; <span class="hljs-number">0</span>) &#123;<br>    res = <span class="hljs-title function_">minus</span>(a1, a2);<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">let</span> tmp = a1<br>    a1 = a2;<br>    a2 = tmp;<br>    res = <span class="hljs-title function_">minus</span>(a1, a2);<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure><p>最后通过符号加数值的方式返回结果</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">$&#123;s&#125;</span><span class="hljs-subst">$&#123;res&#125;</span>`</span>;<br></code></pre></td></tr></table></figure><h1 id="细节和注意"><a href="#细节和注意" class="headerlink" title="细节和注意"></a>细节和注意</h1><ol><li><p>底层的 <code>minuse</code> 和 <code>add</code> 实现其实都相对简单，注意进位和借位即可</p></li><li><p>上层的 <code>bigAdd</code> 和 <code>bigMinus</code> 需要比较大小，同符号和异符号可能会产生不同的效果</p></li><li><p>注意加法位数不同导致的问题，当其中任意一者还有内容的时候就必须继续加下去，且这个过程不能直接借助 <code>carry</code> 处理</p></li><li><p>减法需要处理前缀 <code>0</code>，同时要保证不能处理掉结果 <code>0</code></p></li></ol><h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>通过字符串的操作就能简单实现对大数的加法和减法，下篇文章计划实现对于大数的乘法和除法，最后的计算结果会更加复杂。</p><p>最后附上完整代码</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">bigAdd</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">let</span> carry = <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">let</span> i = a1.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">let</span> j = a2.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">let</span> arr = [];<br>  <span class="hljs-keyword">while</span> (a1[i] || a2[j]) &#123;<br>    <span class="hljs-keyword">let</span> x = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (a1[i]) &#123;<br>      x = <span class="hljs-title class_">Number</span>(a1[i]);<br>    &#125;<br>    <span class="hljs-keyword">let</span> y = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (a2[j]) &#123;<br>      y = <span class="hljs-title class_">Number</span>(a2[j]);<br>    &#125;<br>    <span class="hljs-keyword">let</span> res = (x + y + carry) % <span class="hljs-number">10</span>;<br>    arr.<span class="hljs-title function_">unshift</span>(res);<br>    carry = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>((x + y + carry) / <span class="hljs-number">10</span>);<br>    i--;<br>    j--;<br>  &#125;<br>  <span class="hljs-keyword">if</span> (carry) &#123;<br>    arr.<span class="hljs-title function_">unshift</span>(carry);<br>  &#125;<br>  <span class="hljs-keyword">return</span> arr.<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot;&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">// 123 23</span><br><span class="hljs-comment">// 23 - 123 = - (123 - 23) =</span><br><span class="hljs-comment">//</span><br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">bigMin</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-comment">// 负数减负数（去掉符号，大减小）（如果 a2 &gt; a1，正号；如果 a1 &gt; a2，负号）</span><br>  <span class="hljs-comment">// 正数减负数（去掉符号，加起来）（正号）</span><br>  <span class="hljs-comment">// 正数减正数（去掉符号，大减小）（如果 a2 &gt; a1，负号；如果 a1 &gt; a2，正号）</span><br>  <span class="hljs-comment">// 负数减正数（去掉符号，加起来）（负号）</span><br>  <span class="hljs-keyword">let</span> s = <span class="hljs-string">&quot;&quot;</span>;<br><br>  <span class="hljs-keyword">if</span> (<br>    <span class="hljs-comment">// 小减大，负数</span><br>    (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>) ||<br>    <span class="hljs-comment">// 小减大，负数</span><br>    (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>)<br>  ) &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-title function_">compare</span>(a1, a2) &lt; <span class="hljs-number">0</span>) &#123;<br>      <span class="hljs-comment">// -123 - -12</span><br>      s = <span class="hljs-string">&quot;-&quot;</span>;<br>    &#125;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) &#123;<br>    <span class="hljs-comment">// -123 - 789</span><br>    s = <span class="hljs-string">&quot;-&quot;</span>;<br>  &#125;<br><br>  <span class="hljs-keyword">let</span> res = <span class="hljs-string">&quot;&quot;</span>;<br>  <span class="hljs-keyword">if</span> (<br>    <span class="hljs-comment">// 正 - 负</span><br>    (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>) ||<br>    <span class="hljs-comment">// 负 - 正</span><br>    (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>)<br>  ) &#123;<br>    <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>      a1 = a1.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (a2[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>      a2 = a2.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    res = <span class="hljs-title function_">bigAdd</span>(a1, a2);<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<br>    <span class="hljs-comment">// 正 - 正</span><br>    (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) ||<br>    <span class="hljs-comment">// 负 - 负</span><br>    (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>)<br>  ) &#123;<br>    <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>      a1 = a1.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (a2[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>      a2 = a2.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-title function_">compare</span>(a1, a2) &gt; <span class="hljs-number">0</span>) &#123;<br>      res = <span class="hljs-title function_">minus</span>(a1, a2);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      <span class="hljs-keyword">let</span> tmp = a1;<br>      a1 = a2;<br>      a2 = tmp;<br>      res = <span class="hljs-title function_">minus</span>(a1, a2);<br>    &#125;<br>  &#125;<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">$&#123;s&#125;</span><span class="hljs-subst">$&#123;res&#125;</span>`</span>;<br>&#125;<br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">minus</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">let</span> carry = <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">let</span> i = a1.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">let</span> j = a2.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">let</span> arr = [];<br>  <span class="hljs-keyword">while</span> (a1[i]) &#123;<br>    <span class="hljs-keyword">let</span> x = <span class="hljs-title class_">Number</span>(a1[i]);<br>    <span class="hljs-keyword">let</span> y = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (a2[j]) &#123;<br>      y = <span class="hljs-title class_">Number</span>(a2[j]);<br>    &#125;<br>    <span class="hljs-keyword">let</span> temp;<br>    <span class="hljs-keyword">if</span> (x - y + carry &lt; <span class="hljs-number">0</span>) &#123;<br>      temp = x + <span class="hljs-number">10</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      temp = x;<br>    &#125;<br>    <span class="hljs-keyword">let</span> res = temp - y + carry;<br>    <span class="hljs-keyword">if</span> (x - y + carry &lt; <span class="hljs-number">0</span>) &#123;<br>      carry = -<span class="hljs-number">1</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      carry = <span class="hljs-number">0</span>;<br>    &#125;<br>    arr.<span class="hljs-title function_">unshift</span>(res);<br>    i--;<br>    j--;<br>  &#125;<br>  <span class="hljs-keyword">while</span> (arr[<span class="hljs-number">0</span>] === <span class="hljs-number">0</span> &amp;&amp; arr.<span class="hljs-property">length</span> &gt; <span class="hljs-number">1</span>) &#123;<br>    arr.<span class="hljs-title function_">shift</span>();<br>  &#125;<br>  <span class="hljs-keyword">return</span> arr.<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot;&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> &#123;<span class="hljs-type">string</span>&#125; <span class="hljs-variable">a1</span></span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> &#123;<span class="hljs-type">string</span>&#125; <span class="hljs-variable">a2</span></span><br><span class="hljs-comment"> * <span class="hljs-doctag">@returns</span> &#123;<span class="hljs-type">number</span>&#125;</span><br><span class="hljs-comment"> */</span><br><span class="hljs-comment">// 正负数，比较大数大小</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">compare</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">if</span> (a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; !a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_">compareNegative</span>(a1, a2);<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; !a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_">comparePositive</span>(a1, a2);<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">compareNegative</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-comment">// 谁位数多谁小</span><br>  <span class="hljs-keyword">if</span> (a1.<span class="hljs-property">length</span> &gt; a2.<span class="hljs-property">length</span>) &#123;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1.<span class="hljs-property">length</span> &lt; a2.<span class="hljs-property">length</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (a1[i] &amp;&amp; a2[i]) &#123;<br>      <span class="hljs-comment">/// 123 789</span><br>      <span class="hljs-keyword">if</span> (a1[i] &gt; a2[i]) &#123;<br>        <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>      &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1[i] &lt; a2[i]) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>      &#125; <span class="hljs-keyword">else</span> &#123;<br>        i++;<br>      &#125;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">comparePositive</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">if</span> (a1.<span class="hljs-property">length</span> &gt; a2.<span class="hljs-property">length</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1.<span class="hljs-property">length</span> &lt; a2.<span class="hljs-property">length</span>) &#123;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (a1[i] &amp;&amp; a2[i]) &#123;<br>      <span class="hljs-keyword">if</span> (a1[i] &gt; a2[i]) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>      &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1[i] &lt; a2[i]) &#123;<br>        <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>      &#125; <span class="hljs-keyword">else</span> &#123;<br>        i++;<br>      &#125;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure></div><hr><div><div class="post-metas my-3"></div><div class="license-box my-3"><div class="license-title"><div>大数如何加减？- 算法小练</div><div>https://blog.zer0fire.me/2023/11/22/大数如何加减？-算法小练/</div></div><div class="license-meta"><div class="license-meta-item"><div>Author</div><div>AlexWang</div></div><div class="license-meta-item license-meta-date"><div>Posted on</div><div>November 22, 2023</div></div><div class="license-meta-item"><div>Licensed under</div><div><a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/"><span class="hint--top hint--rounded" aria-label="BY - Attribution"><i class="iconfont icon-by"></i></span></a></div></div></div><div class="license-icon iconfont"></div></div><div class="post-prevnext my-3"><article class="post-prev col-6"></article><article class="post-next col-6"><a href="/2023/11/21/Docker-%E7%AC%94%E8%AE%B0/" title="Docker 笔记"><span class="hidden-mobile">Docker 笔记</span> <span class="visible-mobile">Next</span> <i class="iconfont icon-arrowright"></i></a></article></div></div></article></div></div></div><div class="side-col d-none d-lg-block col-lg-2"><aside class="sidebar" style="margin-left:-1rem"><div id="toc"><p class="toc-header"><i class="iconfont icon-list"></i> <span>Table of Contents</span></p><div class="toc-body" id="toc-body"></div></div></aside></div></div></div><a id="scroll-top-button" aria-label="TOP" href="#" role="button"><i class="iconfont icon-arrowup" aria-hidden="true"></i></a><div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable modal-lg" role="document"><div class="modal-content"><div class="modal-header text-center"><h4 class="modal-title w-100 font-weight-bold">Search</h4><button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><div class="modal-body mx-3"><div class="md-form mb-5"><input type="text" id="local-search-input" class="form-control validate"> <label data-error="x" data-success="v" for="local-search-input">Keyword</label></div><div class="list-group" id="local-search-result"></div></div></div></div></div></main><footer><div class="footer-inner"><div class="footer-content"><a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a></div></div></footer><script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script><link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css"><script>NProgress.configure({showSpinner:!1,trickleSpeed:100}),NProgress.start(),window.addEventListener("load",(function(){NProgress.done()}))</script><script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script><script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script><script src="/js/events.js"></script><script src="/js/plugins.js"></script><script src="/js/img-lazyload.js"></script><script>Fluid.utils.createScript("https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js",(function(){var t=jQuery("#toc");if(0!==t.length&&window.tocbot){var i=jQuery("#board-ctn").offset().top;window.tocbot.init(Object.assign({tocSelector:"#toc-body",contentSelector:".markdown-body",linkClass:"tocbot-link",activeLinkClass:"tocbot-active-link",listClass:"tocbot-list",isCollapsedClass:"tocbot-is-collapsed",collapsibleClass:"tocbot-is-collapsible",scrollSmooth:!0,includeTitleTags:!0,headingsOffset:-i},CONFIG.toc)),t.find(".toc-list-item").length>0&&t.css("visibility","visible"),Fluid.events.registerRefreshCallback((function(){if("tocbot"in window){tocbot.refresh();var t=jQuery("#toc");if(0===t.length||!tocbot)return;t.find(".toc-list-item").length>0&&t.css("visibility","visible")}}))}}))</script><script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script><script>Fluid.plugins.codeWidget()</script><script>Fluid.utils.createScript("https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js",(function(){window.anchors.options={placement:CONFIG.anchorjs.placement,visible:CONFIG.anchorjs.visible},CONFIG.anchorjs.icon&&(window.anchors.options.icon=CONFIG.anchorjs.icon);var n=(CONFIG.anchorjs.element||"h1,h2,h3,h4,h5,h6").split(","),o=[];for(var s of n)o.push(".markdown-body > "+s.trim());"left"===CONFIG.anchorjs.placement&&(window.anchors.options.class="anchorjs-link-left"),window.anchors.add(o.join(", ")),Fluid.events.registerRefreshCallback((function(){if("anchors"in window){anchors.removeAll();var n=(CONFIG.anchorjs.element||"h1,h2,h3,h4,h5,h6").split(","),o=[];for(var s of n)o.push(".markdown-body > "+s.trim());"left"===CONFIG.anchorjs.placement&&(anchors.options.class="anchorjs-link-left"),anchors.add(o.join(", "))}}))}))</script><script>Fluid.utils.createScript("https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js",(function(){Fluid.plugins.fancyBox()}))</script><script>Fluid.plugins.imageCaption()</script><script src="/js/local-search.js"></script><script src="/js/circle.js"></script><script src="/js/intro.js"></script><script src="/js/boot.js"></script><noscript><div class="noscript-warning">Blog works best with JavaScript enabled</div></noscript></body></html>
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="AlexWang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言在平时 coding 的时候，如果用到一些数学计算，那么加法和减法必然是我们代码中的常客，但是当一些数字超过 JS 可精确表示的范围时，我们又该如何计算呢？今天给大家带来的就是一个粗浅的算法思路及其实现。如果对我的内容有问题或者疑问，欢迎评论区多多交流。 理清思路前置条件 首先要理解，因为 JS 无法准确表示超出 IEEE 754 标准规范的整数。当数字超过 -2^53到2^53 的范围时，无">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数如何加减？- 算法小练">
+<meta property="og:url" content="https://blog.zer0fire.me/2023/11/22/%E5%A4%A7%E6%95%B0%E5%A6%82%E4%BD%95%E5%8A%A0%E5%87%8F%EF%BC%9F-%E7%AE%97%E6%B3%95%E5%B0%8F%E7%BB%83/index.html">
+<meta property="og:site_name" content="zer0fire">
+<meta property="og:description" content="前言在平时 coding 的时候，如果用到一些数学计算，那么加法和减法必然是我们代码中的常客，但是当一些数字超过 JS 可精确表示的范围时，我们又该如何计算呢？今天给大家带来的就是一个粗浅的算法思路及其实现。如果对我的内容有问题或者疑问，欢迎评论区多多交流。 理清思路前置条件 首先要理解，因为 JS 无法准确表示超出 IEEE 754 标准规范的整数。当数字超过 -2^53到2^53 的范围时，无">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/61aa5f1e2a3f4ab0af758277a88cbaad~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=780&h=1150&s=74307&e=png&b=fcfcfc">
+<meta property="og:image" content="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8cb9ab6b27db4a5db4e63c7c86bbeb7d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=756&h=611&s=50477&e=png&b=fcfcfc">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3505088142fd411892dfce7603032218~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=664&h=591&s=46459&e=png&b=fcfcfc">
+<meta property="article:published_time" content="2023-11-22T03:03:41.000Z">
+<meta property="article:modified_time" content="2023-11-22T03:24:38.060Z">
+<meta property="article:author" content="AlexWang">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/61aa5f1e2a3f4ab0af758277a88cbaad~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=780&h=1150&s=74307&e=png&b=fcfcfc">
+  
+  
+  
+  <title>大数如何加减？- 算法小练 - zer0fire</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/circle.css">
+<link rel="stylesheet" href="/css/intro.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.zer0fire.me","root":"/","version":"1.9.5-a","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>zer0fire</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">大数如何加减？- 算法小练</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-22 11:03" pubdate>
+          November 22, 2023 am
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          59 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">大数如何加减？- 算法小练</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在平时 coding 的时候，如果用到一些数学计算，那么加法和减法必然是我们代码中的常客，但是当一些数字超过 <code>JS</code> 可精确表示的范围时，我们又该如何计算呢？今天给大家带来的就是一个粗浅的算法思路及其实现。如果对我的内容有问题或者疑问，欢迎评论区多多交流。</p>
+<h1 id="理清思路"><a href="#理清思路" class="headerlink" title="理清思路"></a>理清思路</h1><h2 id="前置条件"><a href="#前置条件" class="headerlink" title="前置条件"></a>前置条件</h2><ol>
+<li>首先要理解，因为 JS 无法准确表示超出 <code>IEEE 754</code> 标准规范的整数。当数字超过 <code>-2^53</code>到<code>2^53</code> 的范围时，无法精确计算 ，因此大数加法和大数减法是利用 <code>string</code> 类型去实现的。</li>
+<li>因为 <code>string</code> 类型无法直接比较大小，需要有个方法比较大小，我这里抽象除了一个 <code>compare</code> 方法。</li>
+<li><code>compare</code> 方法的流程如下，最终返回三种值，<code>-1</code> 表示小于，<code>1</code> 表示大于，<code>0</code> 表示相等。<ul>
+<li>首先比<strong>符号</strong>，负数肯定比正数小。</li>
+<li>其次比<strong>位数</strong>，当符号相同那么从最高位数比，最高位大的负数更小，最高位大的正数更大。</li>
+<li>每位数字从最高位比到最低位，如果中间没有比出大小说明两数<strong>相等</strong>。</li>
+</ul>
+</li>
+<li>加法有进位，减法有借位，这里用 carry 表示，在计算完最后需要做相应的处理，千万不能忘记</li>
+<li>减法根据借位情况，可能会出现前缀 <code>0</code>，这时前缀 <code>0</code> 需要去除，但要注意不要把单独的结果 <code>0</code> 去除 。</li>
+<li>当涉及正负符号的时候，可以先把正负符号的结果通过比较的方式计算出来，然后最后加上符号即可</li>
+</ol>
+<h2 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h2><p>为了更加直观的理解这个流程我画了两个简单的流程图</p>
+<p><strong>大数加</strong><br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/61aa5f1e2a3f4ab0af758277a88cbaad~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=780&h=1150&s=74307&e=png&b=fcfcfc" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><strong>大数减（带正负号）</strong></p>
+<p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8cb9ab6b27db4a5db4e63c7c86bbeb7d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=756&h=611&s=50477&e=png&b=fcfcfc" srcset="/img/loading.gif" lazyload alt="image.png"><br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3505088142fd411892dfce7603032218~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=664&h=591&s=46459&e=png&b=fcfcfc" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h1 id="开始实现"><a href="#开始实现" class="headerlink" title="开始实现"></a>开始实现</h1><h2 id="1-compare-方法"><a href="#1-compare-方法" class="headerlink" title="1. compare 方法"></a>1. <code>compare</code> 方法</h2><p><code>compare</code> 方法主要处理了四种比较的情况，负数和正数，正数和负数，负数和负数，正数和正数，前两种情况分别返回 <code>-1</code> 和 <code>1</code> 即可，后两种情况需要比对数位，前面的思路阐述中已经解释过，这里为了篇幅就把详细代码放在最后总结的代码中，这里不再赘述。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">compare</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">if</span> (a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; !a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_">compareNegative</span>(a1, a2);<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; !a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_">comparePositive</span>(a1, a2);<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-大数加"><a href="#2-大数加" class="headerlink" title="2. 大数加"></a>2. 大数加</h2><p>首先获取四个变量</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">let</span> carry = <span class="hljs-number">0</span>; <span class="hljs-comment">// 进位</span><br><span class="hljs-keyword">let</span> i = a1.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>; <span class="hljs-comment">// a1 的当前位指针，从最后一位开始</span><br><span class="hljs-keyword">let</span> j = a2.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>; <span class="hljs-comment">// a2 的当前位指针，从最后一位开始</span><br><span class="hljs-keyword">let</span> arr = []; <span class="hljs-comment">// 结果数据，最后会进行处理和组合</span><br></code></pre></td></tr></table></figure>
+
+<p>然后通过循环，将数字加起来</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">while</span> (a1[i] || a2[j] || carry) &#123;<br>  <span class="hljs-comment">// 注意这里 a1 和 a2 位数可能不同，因此当有任意一个值，都要继续</span><br>  <span class="hljs-keyword">let</span> x = <span class="hljs-number">0</span>; <span class="hljs-comment">// 默认 0</span><br>  <span class="hljs-keyword">if</span> (a1[i]) &#123;<br>    x = <span class="hljs-title class_">Number</span>(a1[i]);<br>  &#125;<br>  <span class="hljs-keyword">let</span> y = <span class="hljs-number">0</span>; <span class="hljs-comment">// 默认 0</span><br>  <span class="hljs-keyword">if</span> (a2[j]) &#123;<br>    y = <span class="hljs-title class_">Number</span>(a2[j]);<br>  &#125;<br>  <span class="hljs-keyword">let</span> res = (x + y + carry) % <span class="hljs-number">10</span>; <span class="hljs-comment">// x + y 同时加上进位，对 10 求余，得到当前的加法结果</span><br>  arr.<span class="hljs-title function_">unshift</span>(res); <span class="hljs-comment">// 放到数组最前一位</span><br>  carry = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>((x + y + carry) / <span class="hljs-number">10</span>); <span class="hljs-comment">// 计算是否进位</span><br>  i--; <span class="hljs-comment">// 往前移动指针，准备下一位计算</span><br>  j--;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后进行进位处理，返回字符串</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">if</span> (carry) &#123;<br>  <span class="hljs-comment">// 如果最后还有进位，需要把进位加上</span><br>  arr.<span class="hljs-title function_">unshift</span>(carry);<br>&#125;<br><span class="hljs-keyword">return</span> arr.<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot;&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-大数减（带正负号）"><a href="#3-大数减（带正负号）" class="headerlink" title="3. 大数减（带正负号）"></a>3. 大数减（带正负号）</h2><p>带正负号首先要确定结果的符号，以下三种情况都是负数，因此 <code>s</code>需要处理</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">let</span> s = <span class="hljs-string">&quot;&quot;</span>; <span class="hljs-comment">// 符号</span><br><span class="hljs-keyword">if</span> (<br>  <span class="hljs-comment">// 小减大，负数</span><br>  (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>) ||<br>  <span class="hljs-comment">// 小减大，正数</span><br>  (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>)<br>) &#123;<br>  <span class="hljs-keyword">if</span> (<span class="hljs-title function_">compare</span>(a1, a2) &lt; <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-comment">// -123 - -12</span><br>    s = <span class="hljs-string">&quot;-&quot;</span>;<br>  &#125;<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) &#123;<br>  <span class="hljs-comment">// 负数减正数</span><br>  <span class="hljs-comment">// -123 - 789</span><br>  s = <span class="hljs-string">&quot;-&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>接着开始处理数字，前两种情况，分别是正数减负数，和负数减负数，抽象为去掉符号之后直接加上，即可得到数值结果</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">let</span> res = <span class="hljs-string">&quot;&quot;</span>;<br><span class="hljs-keyword">if</span> (<br>  <span class="hljs-comment">// 正 - 负</span><br>  (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>) ||<br>  <span class="hljs-comment">// 负 - 正</span><br>  (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>)<br>) &#123;<br>  <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    a1 = a1.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  <span class="hljs-keyword">if</span> (a2[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    a2 = a2.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  res = <span class="hljs-title function_">bigAdd</span>(a1, a2);<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(<br>  ...<br>) &#123;<br>  ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>后两种情况，正数减正数，负数减负数，去掉符号后通过比较让大数减小数，即可得到数值结果</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">if</span> (<br>  ...<br>) &#123;<br>	...<br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<br>  <span class="hljs-comment">// 正 - 正</span><br>  (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) ||<br>  <span class="hljs-comment">// 负 - 负</span><br>  (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>)<br>) &#123;<br>  <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    a1 = a1.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  <span class="hljs-keyword">if</span> (a2[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    a2 = a2.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  <span class="hljs-keyword">if</span> (<span class="hljs-title function_">compare</span>(a1, a2) &gt; <span class="hljs-number">0</span>) &#123;<br>    res = <span class="hljs-title function_">minus</span>(a1, a2);<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">let</span> tmp = a1<br>    a1 = a2;<br>    a2 = tmp;<br>    res = <span class="hljs-title function_">minus</span>(a1, a2);<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后通过符号加数值的方式返回结果</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">$&#123;s&#125;</span><span class="hljs-subst">$&#123;res&#125;</span>`</span>;<br></code></pre></td></tr></table></figure>
+
+<h1 id="细节和注意"><a href="#细节和注意" class="headerlink" title="细节和注意"></a>细节和注意</h1><ol>
+<li><p>底层的 <code>minuse</code> 和 <code>add</code> 实现其实都相对简单，注意进位和借位即可</p>
+</li>
+<li><p>上层的 <code>bigAdd</code> 和 <code>bigMinus</code> 需要比较大小，同符号和异符号可能会产生不同的效果</p>
+</li>
+<li><p>注意加法位数不同导致的问题，当其中任意一者还有内容的时候就必须继续加下去，且这个过程不能直接借助 <code>carry</code> 处理</p>
+</li>
+<li><p>减法需要处理前缀 <code>0</code>，同时要保证不能处理掉结果 <code>0</code></p>
+</li>
+</ol>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>通过字符串的操作就能简单实现对大数的加法和减法，下篇文章计划实现对于大数的乘法和除法，最后的计算结果会更加复杂。</p>
+<p>最后附上完整代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">bigAdd</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">let</span> carry = <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">let</span> i = a1.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">let</span> j = a2.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">let</span> arr = [];<br>  <span class="hljs-keyword">while</span> (a1[i] || a2[j]) &#123;<br>    <span class="hljs-keyword">let</span> x = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (a1[i]) &#123;<br>      x = <span class="hljs-title class_">Number</span>(a1[i]);<br>    &#125;<br>    <span class="hljs-keyword">let</span> y = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (a2[j]) &#123;<br>      y = <span class="hljs-title class_">Number</span>(a2[j]);<br>    &#125;<br>    <span class="hljs-keyword">let</span> res = (x + y + carry) % <span class="hljs-number">10</span>;<br>    arr.<span class="hljs-title function_">unshift</span>(res);<br>    carry = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>((x + y + carry) / <span class="hljs-number">10</span>);<br>    i--;<br>    j--;<br>  &#125;<br>  <span class="hljs-keyword">if</span> (carry) &#123;<br>    arr.<span class="hljs-title function_">unshift</span>(carry);<br>  &#125;<br>  <span class="hljs-keyword">return</span> arr.<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot;&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">// 123 23</span><br><span class="hljs-comment">// 23 - 123 = - (123 - 23) =</span><br><span class="hljs-comment">//</span><br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">bigMin</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-comment">// 负数减负数（去掉符号，大减小）（如果 a2 &gt; a1，正号；如果 a1 &gt; a2，负号）</span><br>  <span class="hljs-comment">// 正数减负数（去掉符号，加起来）（正号）</span><br>  <span class="hljs-comment">// 正数减正数（去掉符号，大减小）（如果 a2 &gt; a1，负号；如果 a1 &gt; a2，正号）</span><br>  <span class="hljs-comment">// 负数减正数（去掉符号，加起来）（负号）</span><br>  <span class="hljs-keyword">let</span> s = <span class="hljs-string">&quot;&quot;</span>;<br><br>  <span class="hljs-keyword">if</span> (<br>    <span class="hljs-comment">// 小减大，负数</span><br>    (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>) ||<br>    <span class="hljs-comment">// 小减大，负数</span><br>    (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>)<br>  ) &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-title function_">compare</span>(a1, a2) &lt; <span class="hljs-number">0</span>) &#123;<br>      <span class="hljs-comment">// -123 - -12</span><br>      s = <span class="hljs-string">&quot;-&quot;</span>;<br>    &#125;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) &#123;<br>    <span class="hljs-comment">// -123 - 789</span><br>    s = <span class="hljs-string">&quot;-&quot;</span>;<br>  &#125;<br><br>  <span class="hljs-keyword">let</span> res = <span class="hljs-string">&quot;&quot;</span>;<br>  <span class="hljs-keyword">if</span> (<br>    <span class="hljs-comment">// 正 - 负</span><br>    (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>) ||<br>    <span class="hljs-comment">// 负 - 正</span><br>    (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>)<br>  ) &#123;<br>    <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>      a1 = a1.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (a2[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>      a2 = a2.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    res = <span class="hljs-title function_">bigAdd</span>(a1, a2);<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<br>    <span class="hljs-comment">// 正 - 正</span><br>    (a1[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] !== <span class="hljs-string">&quot;-&quot;</span>) ||<br>    <span class="hljs-comment">// 负 - 负</span><br>    (a1[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span> &amp;&amp; a2[<span class="hljs-number">0</span>] === <span class="hljs-string">&quot;-&quot;</span>)<br>  ) &#123;<br>    <span class="hljs-keyword">if</span> (a1[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>      a1 = a1.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (a2[<span class="hljs-number">0</span>].<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>      a2 = a2.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-title function_">compare</span>(a1, a2) &gt; <span class="hljs-number">0</span>) &#123;<br>      res = <span class="hljs-title function_">minus</span>(a1, a2);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      <span class="hljs-keyword">let</span> tmp = a1;<br>      a1 = a2;<br>      a2 = tmp;<br>      res = <span class="hljs-title function_">minus</span>(a1, a2);<br>    &#125;<br>  &#125;<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">$&#123;s&#125;</span><span class="hljs-subst">$&#123;res&#125;</span>`</span>;<br>&#125;<br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">minus</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">let</span> carry = <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">let</span> i = a1.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">let</span> j = a2.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">let</span> arr = [];<br>  <span class="hljs-keyword">while</span> (a1[i]) &#123;<br>    <span class="hljs-keyword">let</span> x = <span class="hljs-title class_">Number</span>(a1[i]);<br>    <span class="hljs-keyword">let</span> y = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (a2[j]) &#123;<br>      y = <span class="hljs-title class_">Number</span>(a2[j]);<br>    &#125;<br>    <span class="hljs-keyword">let</span> temp;<br>    <span class="hljs-keyword">if</span> (x - y + carry &lt; <span class="hljs-number">0</span>) &#123;<br>      temp = x + <span class="hljs-number">10</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      temp = x;<br>    &#125;<br>    <span class="hljs-keyword">let</span> res = temp - y + carry;<br>    <span class="hljs-keyword">if</span> (x - y + carry &lt; <span class="hljs-number">0</span>) &#123;<br>      carry = -<span class="hljs-number">1</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>      carry = <span class="hljs-number">0</span>;<br>    &#125;<br>    arr.<span class="hljs-title function_">unshift</span>(res);<br>    i--;<br>    j--;<br>  &#125;<br>  <span class="hljs-keyword">while</span> (arr[<span class="hljs-number">0</span>] === <span class="hljs-number">0</span> &amp;&amp; arr.<span class="hljs-property">length</span> &gt; <span class="hljs-number">1</span>) &#123;<br>    arr.<span class="hljs-title function_">shift</span>();<br>  &#125;<br>  <span class="hljs-keyword">return</span> arr.<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot;&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> &#123;<span class="hljs-type">string</span>&#125; <span class="hljs-variable">a1</span></span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> &#123;<span class="hljs-type">string</span>&#125; <span class="hljs-variable">a2</span></span><br><span class="hljs-comment"> * <span class="hljs-doctag">@returns</span> &#123;<span class="hljs-type">number</span>&#125;</span><br><span class="hljs-comment"> */</span><br><span class="hljs-comment">// 正负数，比较大数大小</span><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">compare</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">if</span> (a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; !a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_">compareNegative</span>(a1, a2);<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!a1.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>) &amp;&amp; !a2.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&quot;-&quot;</span>)) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title function_">comparePositive</span>(a1, a2);<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">compareNegative</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-comment">// 谁位数多谁小</span><br>  <span class="hljs-keyword">if</span> (a1.<span class="hljs-property">length</span> &gt; a2.<span class="hljs-property">length</span>) &#123;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1.<span class="hljs-property">length</span> &lt; a2.<span class="hljs-property">length</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (a1[i] &amp;&amp; a2[i]) &#123;<br>      <span class="hljs-comment">/// 123 789</span><br>      <span class="hljs-keyword">if</span> (a1[i] &gt; a2[i]) &#123;<br>        <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>      &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1[i] &lt; a2[i]) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>      &#125; <span class="hljs-keyword">else</span> &#123;<br>        i++;<br>      &#125;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-keyword">function</span> <span class="hljs-title function_">comparePositive</span>(<span class="hljs-params">a1, a2</span>) &#123;<br>  <span class="hljs-keyword">if</span> (a1.<span class="hljs-property">length</span> &gt; a2.<span class="hljs-property">length</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1.<span class="hljs-property">length</span> &lt; a2.<span class="hljs-property">length</span>) &#123;<br>    <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (a1[i] &amp;&amp; a2[i]) &#123;<br>      <span class="hljs-keyword">if</span> (a1[i] &gt; a2[i]) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>      &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a1[i] &lt; a2[i]) &#123;<br>        <span class="hljs-keyword">return</span> -<span class="hljs-number">1</span>;<br>      &#125; <span class="hljs-keyword">else</span> &#123;<br>        i++;<br>      &#125;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>大数如何加减？- 算法小练</div>
+      <div>https://blog.zer0fire.me/2023/11/22/大数如何加减？-算法小练/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>AlexWang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>November 22, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/21/Docker-%E7%AC%94%E8%AE%B0/" title="Docker 笔记">
+                        <span class="hidden-mobile">Docker 笔记</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/circle.js"></script>
+<script src="/js/intro.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
